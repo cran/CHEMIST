@@ -1,0 +1,23 @@
+#' @title Causal Inference with High-Dimensional Error-Prone Covariates and
+#' Misclassified Treatments
+#'
+#' @description The package CHEMIST, referred to Causal inference with High-dimsensional Error-
+#' prone Covariates and MISclassified Treatments, aims to deal with the average
+#' treatment effect (ATE), where the data are subject to high-dimensionality and
+#' measurement error. This package primarily contains two functions: one is
+#' Data_Gen that is applied to generate artificial data, including potential
+#' outcomes, error-prone treatments and covariates, and the other is FATE that is
+#' used to estimate ATE with measurement error correction.
+
+#' @details This package aims to estimate ATE in the presence of high-dimensional and
+#' error-prone data. The strategy is to do variable selection by feature screening
+#' and general outcome-adaptive lasso. After that, measurement error in
+#' covariates are corrected. Finally, with informative and error corrected data
+#' obtained, the propensity score can be estimated and can be used to estimate
+#' ATE by the inverse probability weight approach.
+#'
+#' @return CHEMIST_package
+#'
+#' @export
+
+CHEMIST_package<-function(){return(CHEMIST_package="CHEMIST_package") }
