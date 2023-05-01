@@ -28,19 +28,19 @@ P(Observed Treatment = 1 | Actual Treatment = 0).}
 P(Observed Treatment = 0 | Actual Treatment = 1).}
 }
 \value{
-ATE A value of the average treatment effect.
+\item{ATE}{A value of the average treatment effect.}
 
-wAMD A weighted absolute mean difference.
+\item{wAMD}{A weighted absolute mean difference.}
 
-Coef_prop_score A table containing coefficients of propensity score.
+\item{Coef_prop_score}{A table containing coefficients of propensity score.}
 
-Kersye_table The selected covariates by feature screening.
+\item{Kersye_table}{The selected covariates by feature screening.}
 
-Corr_trt_table A summarized table containing corrected treatment.
+\item{Corr_trt_table}{A summarized table containing corrected treatment.}
 }
 \description{
 This function aims to estimate ATE by selecting informative
-covariates and correct for measurement error in covariates and
+covariates and correcting for measurement error in covariates and
 misclassification in treatments. The function FATE reflects the strategy of
 estimation method: Feature screening, Adaptive lasso, Treatment  adjustment,
 and Error correction for covariates.

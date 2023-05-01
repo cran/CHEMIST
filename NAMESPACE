@@ -3,6 +3,7 @@
 export(CHEMIST_package)
 export(Data_Gen)
 export(FATE)
+importFrom(LaplacesDemon,"rmvt")
 importFrom(MASS,"mvrnorm")
 importFrom(XICOR,"calculateXI")
 importFrom(stats,"binomial")

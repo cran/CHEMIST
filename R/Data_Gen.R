@@ -69,28 +69,28 @@
 #' variables, \code{typeY = "pois"} refers to Poisson random variables, and
 #' \code{typeY = "cont"} refers to normally distributed random variables.
 #'
-#' @return Data A n x (p+2) matrix of the original data without measurement error,
+#' @return \item{Data}{A n x (p+2) matrix of the original data without measurement error,
 #' where n is sample size and the first p columns are covariates with the order being
 #' Xc (the covariates associated with both treatment and outcome),
 #' Xp (the covariates associated with outcome only),
 #' Xi (the covariates associated with treatment only),
 #' Xs (the covariates independent of outcome and treatment),
-#' the last second column is treatment, and the last column is outcome.
+#' the last second column is treatment, and the last column is outcome.}
 #'
-#' @return Error_Data A n x (p+2) matrix of the data with measurement error in covariates
+#' @return \item{Error_Data}{A n x (p+2) matrix of the data with measurement error in covariates
 #' and treatment, where n is sample size and the first p columns are covariates
 #' with the order being
 #' Xc (the covariates associated with both treatment and outcome),
 #' Xp (the covariates associated with outcome only),
 #' Xi (the covariates associated with treatment only),
 #' Xs (the covariates independent of outcome and treatment),
-#' the last second column is treatment, and the last column is outcome.
+#' the last second column is treatment, and the last column is outcome.}
 #'
-#' @return Pi A n x 2 matrix containing two misclassification probabilities pi_10 =
+#' @return \item{Pi}{A n x 2 matrix containing two misclassification probabilities pi_10 =
 #' P(Observed Treatment = 1 | Actual Treatment = 0) and pi_01 =
-#' P(Observed Treatment = 0 | Actual Treatment = 1) in columns.
+#' P(Observed Treatment = 0 | Actual Treatment = 1) in columns.}
 #'
-#' @return cov_e A covariance matrix of the measurement error model.
+#' @return \item{cov_e}{A covariance matrix of the measurement error model.}
 #'
 #' @examples
 #' ##### Example 1: A multivariate normal continuous X with linear normal Y #####
@@ -133,7 +133,8 @@
 #' @export
 #' @importFrom stats "rgamma" "rt" "rbinom" "rpois" "rnorm"
 #' @importFrom MASS "mvrnorm"
-#'
+#' @importFrom LaplacesDemon "rmvt"
+
 Data_Gen <- function(X,alpha,beta,theta,a,sigma_e,e_distr="normal",num_pi,delta,linearY,typeY){
   Data = NULL
   X=X
@@ -175,26 +176,27 @@ Data_Gen <- function(X,alpha,beta,theta,a,sigma_e,e_distr="normal",num_pi,delta,
   #generate data
   colnames(X) = var.list2
 
-  #generate measurement error for X
+  #generate measurement error for X\
+  W = matrix(NA,n,p)
   cov_e = matrix(0,p,p)
   diag(cov_e) = sigma_e
   mean_e = rep(0,p)
   if(e_distr == "normal"){
-    e = mvrnorm(n = n, mu = mean_e, Sigma = cov_e, empirical = FALSE)
+    e = mvrnorm(n = n, mu = mean_e, Sigma = cov_e)
+    W = sigma_e*a + X + e
+
   }
   else{
-    e = matrix(0,n,p)
-    for(i in 1:n){
-      e[,i] = rt(n,e_distr)
-    }
+    e =  rmvt(n = n, mu = mean_e, S=cov_e, df=e_distr)
+    W = sigma_e*a + X + e
   }
-  W = sigma_e*a + X+ e
 
 
   # set associate with treatment
   prob =  rowSums( cbind( X[,grepl("Xc", colnames(X))]*scale_1 , X[,grepl("Xi", colnames(X))]*scale_2 ) )
   prob = exp(prob)/(1+exp(prob))
   D = (prob >0.5)*1
+  #D = rbinom(n, size = 1,prob)
   D_star = rep(0,n)
   for( i in 1:n){
     pi_matrix = matrix( c(1-pi_10[i],pi_10[i],pi_01[i],1-pi_01[i]) ,nrow=2,ncol=2)
@@ -211,16 +213,30 @@ Data_Gen <- function(X,alpha,beta,theta,a,sigma_e,e_distr="normal",num_pi,delta,
 
   #set associate with outcome
   if(typeY == "binary") {
-    prob = exp(D*theta + CP_vec ) /
-      (1+exp(D*theta + CP_vec))
-    y = rbinom(n, size = 1,prob )
+    prob = exp(D*theta + CP_vec  ) /(1+exp(D*theta + CP_vec ))
+    #y = rbinom(n, size = 1,prob )
+    y = (prob >0.5)*1
+
+    #TRUE ATE
+    prob1 = exp(theta + CP_vec  ) /(1+exp(theta + CP_vec ))
+    prob0 = exp(CP_vec) /(1+exp(CP_vec ))
+    #ATE =mean(rbinom(n,1,prob1)) -mean(rbinom(n,1,prob0))
+    ATE =mean((prob1 >0.5)*1) -mean((prob0 >0.5)*1)
   }
   else if(typeY == "pois"){
-    prob = abs(D*theta + CP_vec+rnorm(n,0,1) )
-    y = rpois(n,prob)
+    lam = abs(D*theta + CP_vec )
+    y = rpois(n,lam)
+
+    #TRUE ATE
+    lam1 = abs(theta + CP_vec )
+    lam0 = abs(CP_vec )
+    ATE = mean(rpois(n,lam1)) -mean(rpois(n,lam0))
   }
   else {
-    y = D*theta + CP_vec + rnorm(n,0,1)
+    y = D*theta + CP_vec +rnorm(n,0,1)
+
+    #TRUE ATE
+    ATE = mean(theta+CP_vec +rnorm(n,0,1))-mean(CP_vec +rnorm(n,0,1))
   }
 
   Data = as.data.frame(cbind(X,D,y) )
@@ -229,3 +245,4 @@ Data_Gen <- function(X,alpha,beta,theta,a,sigma_e,e_distr="normal",num_pi,delta,
   colnames(Error_Data) <-  c(var.list2,"D","Y")
   return( list(Data=Data, Error_Data = Error_Data, Pi = cbind(pi_10,pi_01), cov_e = cov_e) )
 }
+

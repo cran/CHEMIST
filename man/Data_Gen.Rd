@@ -83,28 +83,28 @@ variables, \code{typeY = "pois"} refers to Poisson random variables, and
 \code{typeY = "cont"} refers to normally distributed random variables.}
 }
 \value{
-Data A n x (p+2) matrix of the original data without measurement error,
+\item{Data}{A n x (p+2) matrix of the original data without measurement error,
 where n is sample size and the first p columns are covariates with the order being
 Xc (the covariates associated with both treatment and outcome),
 Xp (the covariates associated with outcome only),
 Xi (the covariates associated with treatment only),
 Xs (the covariates independent of outcome and treatment),
-the last second column is treatment, and the last column is outcome.
+the last second column is treatment, and the last column is outcome.}
 
-Error_Data A n x (p+2) matrix of the data with measurement error in covariates
+\item{Error_Data}{A n x (p+2) matrix of the data with measurement error in covariates
 and treatment, where n is sample size and the first p columns are covariates
 with the order being
 Xc (the covariates associated with both treatment and outcome),
 Xp (the covariates associated with outcome only),
 Xi (the covariates associated with treatment only),
 Xs (the covariates independent of outcome and treatment),
-the last second column is treatment, and the last column is outcome.
+the last second column is treatment, and the last column is outcome.}
 
-Pi A n x 2 matrix containing two misclassification probabilities pi_10 =
+\item{Pi}{A n x 2 matrix containing two misclassification probabilities pi_10 =
 P(Observed Treatment = 1 | Actual Treatment = 0) and pi_01 =
-P(Observed Treatment = 0 | Actual Treatment = 1) in columns.
+P(Observed Treatment = 0 | Actual Treatment = 1) in columns.}
 
-cov_e A covariance matrix of the measurement error model.
+\item{cov_e}{A covariance matrix of the measurement error model.}
 }
 \description{
 This function shows the demonstration of data generation based on some

@@ -1,7 +1,7 @@
 #' @title Estimation of ATE under high-dimensional error-prone data
 #'
 #' @description This function aims to estimate ATE by selecting informative
-#' covariates and correct for measurement error in covariates and
+#' covariates and correcting for measurement error in covariates and
 #' misclassification in treatments. The function FATE reflects the strategy of
 #' estimation method: Feature screening, Adaptive lasso, Treatment  adjustment,
 #' and Error correction for covariates.
@@ -26,15 +26,15 @@
 #' @param pi_01 Misclassifcation probability is
 #' P(Observed Treatment = 0 | Actual Treatment = 1).
 #'
-#' @return ATE A value of the average treatment effect.
+#' @return \item{ATE}{A value of the average treatment effect.}
 #'
-#' @return wAMD A weighted absolute mean difference.
+#' @return \item{wAMD}{A weighted absolute mean difference.}
 #'
-#' @return Coef_prop_score A table containing coefficients of propensity score.
+#' @return \item{Coef_prop_score}{A table containing coefficients of propensity score.}
 #'
-#' @return Kersye_table The selected covariates by feature screening.
+#' @return \item{Kersye_table}{The selected covariates by feature screening.}
 #'
-#' @return Corr_trt_table A summarized table containing corrected treatment.
+#' @return \item{Corr_trt_table}{A summarized table containing corrected treatment.}
 #'
 #' @examples
 #' ##### Example 1: Input the data without measurement correction #####
@@ -163,8 +163,10 @@ FATE <- function(Data, cov_e, Consider_D, pi_10, pi_01){
   mu_W = colMeans(W);length(mu_W)
   sigma_W = (1/(n-1)) * t(W-mu_W)%*%(W-mu_W)  ; dim(sigma_W)
   #sigma_W = cov(W)
-  X =  mu_W + (W-mu_W) %*% solve(sigma_W) %*% t( sigma_W-cov_e  )
-  Data[, c(var.list) ] = X
+
+  for(i in 1: n){
+    Data[i, c(var.list) ] =  mu_W + t( sigma_W-cov_e  ) %*% solve(sigma_W) %*% (W[i,]-mu_W)
+  }
 
 
   for (m in 1:length(S_lam)) {
